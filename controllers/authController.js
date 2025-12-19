@@ -42,6 +42,15 @@ exports.login = async (req, res) => {
 
     res.json({ token, user });
   } catch (err) {
-    res.status(500).json({ error: 'Login Failed' });
+    res.status(500).json({ error: "Login Failed" });
+  }
+};
+
+exports.getUser = async (req, res) => {
+  try {
+    const user = await User.find();
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
