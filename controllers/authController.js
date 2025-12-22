@@ -1,6 +1,24 @@
 const User = require("../models/UserModel");
-const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+
+//helper function to hash password with PBKDF2 (SHA-512)
+const hashPassword = (password) =>{
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+  return `${salt}:${hash}`
+}
+
+//helper function to verify password
+const verifyPassword = (password, storedValue) =>{
+  const [salt, storedValue] = storedValue.split(":");
+  const hashToVerify = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+
+  //timingSafeEqual Prevents timing attacks
+
+  return crypto.timingSafeEqual(Buffer.from(storedHash), Buffer.from(hashToVerify));
+
+}
 
 exports.signup = async (req, res) => {
   try {
@@ -10,7 +28,7 @@ exports.signup = async (req, res) => {
     if (existingUser)
       return res.status(400).json({ message: "User Already Exists" });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = hashPassword(password);
 
     const user = new User({
       firstName,
@@ -33,7 +51,7 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not Found" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await verifyPassword(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid password" });
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
