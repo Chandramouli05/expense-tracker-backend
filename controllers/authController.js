@@ -2,11 +2,7 @@ const User = require("../models/UserModel");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
-/**
- * ===============================
- * Helper: Hash Password (PBKDF2)
- * ===============================
- */
+
 const hashPassword = (password) => {
   const salt = crypto.randomBytes(16).toString("hex");
 
@@ -18,11 +14,7 @@ const hashPassword = (password) => {
   return `${salt}:${hash}`;
 };
 
-/**
- * ===============================
- * Helper: Verify Password
- * ===============================
- */
+
 const verifyPassword = (password, storedPassword) => {
   if (!storedPassword) return false;
 
@@ -38,11 +30,7 @@ const verifyPassword = (password, storedPassword) => {
   );
 };
 
-/**
- * ===============================
- * Signup Controller
- * ===============================
- */
+
 exports.signup = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -76,11 +64,7 @@ exports.signup = async (req, res) => {
   }
 };
 
-/**
- * ===============================
- * Login Controller
- * ===============================
- */
+
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -121,11 +105,7 @@ exports.login = async (req, res) => {
   }
 };
 
-/**
- * ===============================
- * Get All Users (Admin/Test)
- * ===============================
- */
+
 exports.getUser = async (req, res) => {
   try {
     const users = await User.find().select("-password");
