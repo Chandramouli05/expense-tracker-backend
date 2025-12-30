@@ -2,7 +2,6 @@ const User = require("../models/UserModel");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
-
 const hashPassword = (password) => {
   const salt = crypto.randomBytes(16).toString("hex");
 
@@ -13,7 +12,6 @@ const hashPassword = (password) => {
   // store as: salt:hash
   return `${salt}:${hash}`;
 };
-
 
 const verifyPassword = (password, storedPassword) => {
   if (!storedPassword) return false;
@@ -29,7 +27,6 @@ const verifyPassword = (password, storedPassword) => {
     Buffer.from(hashToVerify, "hex")
   );
 };
-
 
 exports.signup = async (req, res) => {
   try {
@@ -64,13 +61,14 @@ exports.signup = async (req, res) => {
   }
 };
 
-
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
 
     const user = await User.findOne({ email });
@@ -83,13 +81,11 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid password" });
     }
 
-    const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
 
-    res.json({
+    res.status(200).json({
       message: "Login successful",
       token,
       user: {
@@ -105,11 +101,21 @@ exports.login = async (req, res) => {
   }
 };
 
-
 exports.getUser = async (req, res) => {
   try {
-    const users = await User.find().select("-password");
-    res.json(users);
+    const userId = req.user.userId;
+
+    const users = await User.findById(userId).select("-password");
+    if (!users) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    res.set({
+      "Cache-control": "no-store, no-cache, must-revalidate",
+      Pragma: "no-cache",
+    });
+
+    res.status(200).json(users);
   } catch (error) {
     console.error("Get User Error:", error);
     res.status(500).json({ message: error.message });
