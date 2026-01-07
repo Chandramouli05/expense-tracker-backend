@@ -2,7 +2,7 @@ const Categories = require("../models/categoriesModel");
 
 exports.getAll = async (req, res) => {
   try {
-    const category = await Categories.find();
+    const category = await Categories.find({userId :req.userId});
     res.json(category);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -12,7 +12,7 @@ exports.getAll = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const { name, icon } = req.body;
-    const createCategory = new Categories({ name, icon });
+    const createCategory = new Categories({ name, icon, userId: req.userId });
     const saved = await createCategory.save();
     res.status(201).json(saved);
   } catch (err) {
@@ -22,8 +22,8 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const updatedCategories = await Categories.findByIdAndUpdate(
-      req.params.id,
+    const updatedCategories = await Categories.findOneAndUpdate(
+      {_id: req.params.id, userId: req.userId},
       req.body,
       { new: true }
     );
@@ -37,7 +37,7 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const deleteCategories = await Categories.findByIdAndDelete(req.params.id);
+    const deleteCategories = await Categories.findOneAndDelete({ _id: req.params.id, userId: req.userId});
     if (!deleteCategories) return res.status(404).json({ error: "Not Found" });
     res.json({ message: "deleted" });
   } catch (err) {
