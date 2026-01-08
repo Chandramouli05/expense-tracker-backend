@@ -11,8 +11,8 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const { name, icon } = req.body;
-    const createCategory = new Categories({ name, icon, userId: req.userId });
+    const { name, icon, date } = req.body;
+    const createCategory = new Categories({ name, icon, date, userId: req.userId });
     const saved = await createCategory.save();
     res.status(201).json(saved);
   } catch (err) {
