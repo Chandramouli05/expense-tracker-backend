@@ -22,10 +22,11 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
+    const {name, icon} = req.body
     const updatedCategories = await Categories.findOneAndUpdate(
       {_id: req.params.id, userId: req.userId},
-      req.body,
-      { new: true }
+      {name,icon},
+      { new: true, runValidators:true }
     );
 
     if (!updatedCategories) return res.status(404).json({ error: "Not Found" });

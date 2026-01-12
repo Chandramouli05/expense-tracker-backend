@@ -5,6 +5,7 @@ const cors = require("cors");
 const expenseRoutes = require("./routes/expenseRoutes");
 const authRoutes = require("./routes/authRoutes");
 const categoriesRoutes = require("./routes/categoriesRoutes");
+const emiRoutes = require("./routes/emiRoutes");
 const app = express();
 
 app.use(cors());
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoriesRoutes);
+app.use("/api/emi", emiRoutes);
 
 const PORT = process.env.PORT || 3500;
 
