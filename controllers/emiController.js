@@ -22,10 +22,9 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const { name, amount, date } = req.body;
     const updatedEMI = await EMI.findOneAndUpdate(
       { _id: req.params.id, userId: req.userId },
-      { name, amount, date },
+      req.body,
       { new: true, runValidators: true }
     );
 
