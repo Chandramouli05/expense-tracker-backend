@@ -25,10 +25,13 @@ exports.update = async (req, res) => {
     const updatedEMI = await EMI.findOneAndUpdate(
       { _id: req.params.id, userId: req.userId },
       req.body,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
-    if (!updatedEMI) return res.status(404).json({ error: "Not Found" });
+    if (!updatedEMI) {
+      return res.status(404).json({ error: "Not Found" });
+    }
+    return res.status(200).json(updatedEMI);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
