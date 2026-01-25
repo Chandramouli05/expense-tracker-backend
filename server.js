@@ -6,6 +6,7 @@ const expenseRoutes = require("./routes/expenseRoutes");
 const authRoutes = require("./routes/authRoutes");
 const categoriesRoutes = require("./routes/categoriesRoutes");
 const emiRoutes = require("./routes/emiRoutes");
+const incomeRoutes = require("./routes/incomeRoutes");
 const app = express();
 
 app.use(cors());
@@ -14,12 +15,13 @@ app.use("/api/expenses", expenseRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/emi", emiRoutes);
+app.use("/api/income", incomeRoutes);
 
 const PORT = process.env.PORT || 3500;
 
 const DB = process.env.DATABASE.replace(
   "<PASSWORD>",
-  process.env.DATABASE_PASSWORD
+  process.env.DATABASE_PASSWORD,
 );
 
 mongoose
