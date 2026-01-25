@@ -7,6 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const categoriesRoutes = require("./routes/categoriesRoutes");
 const emiRoutes = require("./routes/emiRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
+const savingsRoutes = require("./routes/savingsRoutes");
 const app = express();
 
 app.use(cors());
@@ -16,6 +17,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/emi", emiRoutes);
 app.use("/api/income", incomeRoutes);
+app.use("/api/savings", savingsRoutes);
 
 const PORT = process.env.PORT || 3500;
 
