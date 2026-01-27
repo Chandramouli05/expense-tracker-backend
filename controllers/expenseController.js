@@ -13,14 +13,11 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const { title, amount,  date,  status } = req.body;
-
-    if(!categoryId){
-      return res.status(400).json({error:"categoryId is required"})
-    }
+    const { title, amount, category, date, status } = req.body;
     const createExpense = new Expense({
       title,
       amount,
+      category,
       date,
       status,
       userId: req.userId,

@@ -13,7 +13,7 @@ const ExpenseSchema = new mongoose.Schema(
     date: { type: Date, default: Date.now, required: true },
     status: { type: String },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("expenseModel", ExpenseSchema);
