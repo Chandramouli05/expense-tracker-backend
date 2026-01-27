@@ -2,7 +2,7 @@ const Expense = require("../models/expenseModel");
 
 exports.getAll = async (req, res) => {
   try {
-    const expenses = await Expense.find({ userId: req.userId }).populate("categoryId","name icon")
+    const expenses = await Expense.find({ userId: req.userId });
     res.json(expenses);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -13,7 +13,7 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const { title, amount,  date,  categoryId, status } = req.body;
+    const { title, amount,  date,  status } = req.body;
 
     if(!categoryId){
       return res.status(400).json({error:"categoryId is required"})
@@ -23,7 +23,6 @@ exports.create = async (req, res) => {
       amount,
       date,
       status,
-      categoryId,
       userId: req.userId,
     });
     const saved = await createExpense.save();
