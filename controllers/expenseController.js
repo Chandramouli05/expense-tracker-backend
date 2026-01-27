@@ -2,7 +2,7 @@ const Expense = require("../models/expenseModel");
 
 exports.getAll = async (req, res) => {
   try {
-    const expenses = await Expense.find({ userId: req.userId });
+    const expenses = await Expense.find({ userId: req.userId }).populate("categoryId","name icon")
     res.json(expenses);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -20,6 +20,7 @@ exports.create = async (req, res) => {
       category,
       date,
       status,
+      categoryId,
       userId: req.userId,
     });
     const saved = await createExpense.save();
