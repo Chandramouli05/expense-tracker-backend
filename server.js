@@ -8,10 +8,34 @@ const categoriesRoutes = require("./routes/categoriesRoutes");
 const emiRoutes = require("./routes/emiRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
 const savingsRoutes = require("./routes/savingsRoutes");
+const cookieParser = require("cookie-parser");
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:4200",
+  "https://expense-tracker-frontend-moulidelta.vercel.app",
+];
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELEE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+
 app.use(express.json());
+app.use(cookieParser());
+
+
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoriesRoutes);

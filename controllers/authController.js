@@ -24,7 +24,7 @@ const verifyPassword = (password, storedPassword) => {
 
   return crypto.timingSafeEqual(
     Buffer.from(storedHash, "hex"),
-    Buffer.from(hashToVerify, "hex")
+    Buffer.from(hashToVerify, "hex"),
   );
 };
 
@@ -81,13 +81,31 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid password" });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
+    const accessToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_ACCESS_SECRET,
+      { expiresIn: "15m" },
+    );
+
+    const refreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" },
+    );
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({
       message: "Login successful",
-      token,
+      accessToken,
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -119,5 +137,55 @@ exports.getUser = async (req, res) => {
   } catch (error) {
     console.error("Get User Error:", error);
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.refreshToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return res.status(401).json({ message: "No refresh token" });
+    }
+
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const user = await User.findById(decoded.userId);
+    if (!user || user.refreshToken !== refreshToken) {
+      return res.status(403).json({ message: "Invalid refresh token" });
+    }
+
+    const newAccessToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_ACCESS_SECRET,
+      { expiresIn: "15m" },
+    );
+
+    res.status(200).json({ accessToken: newAccessToken });
+  } catch (err) {
+    res.status(403).json({ message: "Refresh token expired" });
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(400).json({ message: "No refresh token found" });
+    }
+
+    const user = await User.findOne({ refreshToken });
+    if (user) {
+      user.refreshToken = null;
+      await user.save();
+    }
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+    });
+    res.status(200).json({ message: "Logout Successful" });
+  } catch (err) {
+    res.status(500).json({ message: "Logout Failed" });
   }
 };
