@@ -28,6 +28,13 @@ const verifyPassword = (password, storedPassword) => {
   );
 };
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+};
+
+
 exports.signup = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -73,12 +80,12 @@ exports.login = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(401).json({ message: "User not found" });
     }
 
     const isMatch = verifyPassword(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid password" });
+      return res.status(401).json({ message: "Invalid password" });
     }
 
     const accessToken = jwt.sign(
@@ -97,9 +104,7 @@ exports.login = async (req, res) => {
     await user.save();
 
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: false,
+      ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -142,7 +147,7 @@ exports.getUser = async (req, res) => {
 
 exports.refreshToken = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) {
       return res.status(401).json({ message: "No refresh token" });
     }
@@ -177,11 +182,7 @@ exports.logout = async (req, res) => {
       }
     }
 
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "None" :"Lax",
-      secure: process.env.NODE_ENV === "production",
-    });
+    res.clearCookie("refreshToken", cookieOptions);
     res.status(200).json({ message: "Logout Successful" });
   } catch (err) {
     res.status(500).json({ message: "Logout Failed" });
