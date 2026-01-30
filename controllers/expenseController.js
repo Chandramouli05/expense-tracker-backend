@@ -9,8 +9,6 @@ exports.getAll = async (req, res) => {
   }
 };
 
-
-
 exports.create = async (req, res) => {
   try {
     const { title, amount, category, date, status } = req.body;
@@ -45,7 +43,7 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const deleteExpense = await Expense.findByIdAndDelete({
+    const deleteExpense = await Expense.findOneAndDelete({
       _id: req.params.id,
       userId: req.userId,
     });
