@@ -167,22 +167,20 @@ exports.refreshToken = async (req, res) => {
 
 exports.logout = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies?.refreshToken;
 
-    if (!refreshToken) {
-      return res.status(400).json({ message: "No refresh token found" });
-    }
-
-    const user = await User.findOne({ refreshToken });
-    if (user) {
-      user.refreshToken = null;
-      await user.save();
+    if (refreshToken) {
+      const user = await User.findOne({ refreshToken });
+      if (user) {
+        user.refreshToken = null;
+        await user.save();
+      }
     }
 
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      sameSite: "None",
-      secure: true,
+      sameSite: process.env.NODE_ENV === "production" ? "None" :"Lax",
+      secure: process.env.NODE_ENV === "production",
     });
     res.status(200).json({ message: "Logout Successful" });
   } catch (err) {
