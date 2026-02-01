@@ -8,6 +8,7 @@ const categoriesRoutes = require("./routes/categoriesRoutes");
 const emiRoutes = require("./routes/emiRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
 const savingsRoutes = require("./routes/savingsRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 const cookieParser = require("cookie-parser");
 const app = express();
 
@@ -35,13 +36,13 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/emi", emiRoutes);
 app.use("/api/income", incomeRoutes);
 app.use("/api/savings", savingsRoutes);
+app.use("/api/reports", reportRoutes);
 
 const PORT = process.env.PORT || 3500;
 
